@@ -6,9 +6,6 @@ Tests with a 4096x4096 grid using a GRIN fiber geometry.
 import numpy as np
 import matplotlib.pyplot as plt
 import time
-import sys
-
-sys.path.insert(0, './modesolver')
 from svmodes import svmodes
 
 
@@ -16,13 +13,13 @@ def test_GRIN_fiber():
     """
     Test the mode solver with a GRIN fiber using loaded index profile.
     """
-    print("=" * 60)
-    print("GRIN Fiber Mode Solver Test")
-    print("=" * 60)
+    print("=" * 60, flush=True)
+    print("GRIN Fiber Mode Solver Test", flush=True)
+    print("=" * 60, flush=True)
 
     # Load index profile from file
-    print("\nLoading GRIN fiber index profile...")
-    n_profile = np.load('./fibers/GRIN_1030_120modes/n_2048_GRIN_1030.npy')
+    print("\nLoading GRIN fiber index profile...", flush=True)
+    n_profile = np.load('./GRIN_1030_120modes/n_4096_GRIN_1030.npy')
 
     # Grid parameters (from loaded profile)
     nx, ny = n_profile.shape
@@ -51,18 +48,18 @@ def test_GRIN_fiber():
     n_core = n_profile.max()
     n_clad = n_profile.min()
 
-    print(f"\nGrid size: {nx} x {ny}")
-    print(f"Domain size: {domain_size} x {domain_size} microns")
-    print(f"Grid spacing: dx = {dx:.4f} um, dy = {dy:.4f} um")
-    print(f"\nFiber parameters:")
-    print(f"  Wavelength: {wavelength} um (1030 nm)")
-    print(f"  Core radius: {core_radius} um")
-    print(f"  n_max (core): {n_core:.6f}")
-    print(f"  n_min (clad): {n_clad:.6f}")
-    print(f"  Index profile loaded from: ./fibers/GRIN_1030_120modes/n_4096_GRIN_1030.npy")
+    print(f"\nGrid size: {nx} x {ny}", flush=True)
+    print(f"Domain size: {domain_size} x {domain_size} microns", flush=True)
+    print(f"Grid spacing: dx = {dx:.4f} um, dy = {dy:.4f} um", flush=True)
+    print(f"\nFiber parameters:", flush=True)
+    print(f"  Wavelength: {wavelength} um (1030 nm)", flush=True)
+    print(f"  Core radius: {core_radius} um", flush=True)
+    print(f"  n_max (core): {n_core:.6f}", flush=True)
+    print(f"  n_min (clad): {n_clad:.6f}", flush=True)
+    print(f"  Index profile loaded from: ./GRIN_1030_120modes/n_4096_GRIN_1030.npy", flush=True)
 
     # Plot index profile
-    print("\nPlotting index profile...")
+    print("\nPlotting index profile...", flush=True)
     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
     im = ax.imshow(n_profile, extent=[x[0], x[-1], y[0], y[-1]],
                    cmap='turbo', origin='lower')
@@ -72,9 +69,9 @@ def test_GRIN_fiber():
     ax.set_aspect('equal')
     plt.colorbar(im, ax=ax, label='n')
     plt.tight_layout()
-    plt.savefig('./fibers/GRIN_1030_120modes/index_profile.png', dpi=150)
-    print(f"  Saved: ./fibers/GRIN_1030_120modes/index_profile.png")
-    plt.show()
+    plt.savefig('./GRIN_1030_120modes/index_profile.png', dpi=300)
+    print(f"  Saved: ./GRIN_1030_120modes/index_profile.png", flush=True)
+    plt.close()
 
     # Mode solver parameters
     guess = (n_core + n_clad) / 2 + 1e-6  # Initial guess for effective index
@@ -83,31 +80,31 @@ def test_GRIN_fiber():
 
     # Use scalar field for LP modes (valid for weakly guiding GRIN fibers)
     field = 'scalar'
-    print(f"\n{'-'*60}")
-    print(f"Solving for LP modes (scalar)...")
-    print(f"{'-'*60}")
+    print(f"\n{'-'*60}", flush=True)
+    print(f"Solving for LP modes (scalar)...", flush=True)
+    print(f"{'-'*60}", flush=True)
 
     start_time = time.time()
     try:
         phi, neff = svmodes(wavelength, guess, nmodes, dx, dy, eps, boundary, field)
         elapsed = time.time() - start_time
 
-        print(f"Mode solving time: {elapsed:.2f} seconds ({elapsed/nmodes:.2f} sec/mode)")
-        print(f"\nEffective indices (neff):")
+        print(f"Mode solving time: {elapsed:.2f} seconds ({elapsed/nmodes:.2f} sec/mode)", flush=True)
+        print(f"\nEffective indices (neff):", flush=True)
         for i, n_eff in enumerate(neff):
             if np.iscomplex(n_eff):
-                print(f"  Mode {i+1}: {n_eff.real:.6f} + {n_eff.imag:.2e}j")
+                print(f"  Mode {i+1}: {n_eff.real:.6f} + {n_eff.imag:.2e}j", flush=True)
             else:
-                print(f"  Mode {i+1}: {n_eff:.6f}")
+                print(f"  Mode {i+1}: {n_eff:.6f}", flush=True)
 
         # Verify results
-        print(f"\nVerification:")
-        print(f"  All neff between n_clad and n_core: ", end="")
+        print(f"\nVerification:", flush=True)
+        print(f"  All neff between n_clad and n_core: ", end="", flush=True)
         neff_real = np.real(neff)
         if np.all((neff_real >= n_clad - 0.001) & (neff_real <= n_core + 0.001)):
-            print("PASS")
+            print("PASS", flush=True)
         else:
-            print("WARNING - some neff out of expected range")
+            print("WARNING - some neff out of expected range", flush=True)
 
         # Plot first 6 modes (2x3 grid)
         nplot = min(6, nmodes)
@@ -130,8 +127,8 @@ def test_GRIN_fiber():
             plt.colorbar(im, ax=ax, label='|E|²')
 
         plt.tight_layout()
-        plt.savefig('./fibers/GRIN_1030_120modes/mode_solver_test_LP.png', dpi=150)
-        print(f"  Plot saved: ./fibers/GRIN_1030_120modes/mode_solver_test_LP.png")
+        plt.savefig('./GRIN_1030_120modes/mode_solver_test_LP.png', dpi=300)
+        print(f"  Plot saved: ./GRIN_1030_120modes/mode_solver_test_LP.png", flush=True)
 
         # Reshape modes to (M, Nx, Ny) format
         phi = np.transpose(phi, (2, 0, 1))  # (Nx, Ny, M) -> (M, Nx, Ny)
@@ -142,13 +139,13 @@ def test_GRIN_fiber():
         n_profile_ds = n_profile[::ds, ::ds]
 
         # Save downsampled modes and index profile
-        save_dir = './fibers/GRIN_1030_120modes'
+        save_dir = './GRIN_1030_120modes'
         nx_ds, ny_ds = n_profile_ds.shape
 
         modes_path = f'{save_dir}/modes_{nx_ds}x{ny_ds}_GRIN_1030_py.npy'
         np.save(modes_path, phi_ds)
-        print(f"\nModes saved to: {modes_path}")
-        print(f"  Shape: {phi_ds.shape} (downsampled {ds}x from {phi.shape})")
+        print(f"\nModes saved to: {modes_path}", flush=True)
+        print(f"  Shape: {phi_ds.shape} (downsampled {ds}x from {phi.shape})", flush=True)
 
         # n_path = f'{save_dir}/n_{nx_ds}_GRIN_1030.npy'
         # np.save(n_path, n_profile_ds)
@@ -171,22 +168,22 @@ def test_GRIN_fiber():
 
     except Exception as e:
         elapsed = time.time() - start_time
-        print(f"ERROR after {elapsed:.2f} seconds: {e}")
+        print(f"ERROR after {elapsed:.2f} seconds: {e}", flush=True)
         import traceback
         traceback.print_exc()
 
-    plt.show()
+    plt.close('all')
 
 
 
 if __name__ == '__main__':
-    print("Mode Solver Test Suite")
-    print("=" * 60)
-    print("Testing svmodes with GRIN fiber (1030 nm)\n")
+    print("Mode Solver Test Suite", flush=True)
+    print("=" * 60, flush=True)
+    print("Testing svmodes with GRIN fiber (1030 nm)\n", flush=True)
 
     # Run tests
     test_GRIN_fiber()
 
-    print("\n" + "=" * 60)
-    print("All tests completed!")
-    print("=" * 60)
+    print("\n" + "=" * 60, flush=True)
+    print("All tests completed!", flush=True)
+    print("=" * 60, flush=True)
