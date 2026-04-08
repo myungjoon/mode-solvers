@@ -1,0 +1,9 @@
+.vscode
+*.asv
+*.mat
+*.hdf5
+*.h5
+*.dat
+__pycache__*
+*egg-info*
+*.idea
